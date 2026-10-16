@@ -26,15 +26,24 @@ window.SITE_CONFIG = {
   founderPhotoUrl: "",                            // URL to a headshot (leave "" to keep the placeholder)
   contactEmail:    "",                            // optional fallback email for the lead form
   formEndpoint:    "",                            // optional Formspree/Tally endpoint (e.g. https://formspree.io/f/xxxx) to capture emails
-  ga4Id:           ""                             // optional GA4 Measurement ID (G-XXXXXXX) to turn on analytics
+  ga4Id:           "",                            // optional GA4 Measurement ID (G-XXXXXXX) to turn on analytics
+  cfBeaconToken:   ""                             // Cloudflare Web Analytics token (from the CF dashboard) — set to turn on privacy-first analytics
 };
 </script>
 
 
-<!-- Analytics: loads GA4 only when SITE_CONFIG.ga4Id is set. Swap for Cloudflare/Plausible if preferred. -->
+<!-- Analytics: Cloudflare Web Analytics loads when SITE_CONFIG.cfBeaconToken is set (privacy-first, no cookie banner); GA4 loads when ga4Id is set. -->
 <script>
 (function(){
-  var id = (window.SITE_CONFIG||{}).ga4Id;
+  var C = window.SITE_CONFIG || {};
+  var tok = C.cfBeaconToken;
+  if(tok){
+    var b=document.createElement('script'); b.defer=true;
+    b.src='https://static.cloudflareinsights.com/beacon.min.js';
+    b.setAttribute('data-cf-beacon', JSON.stringify({token: tok}));
+    document.head.appendChild(b);
+  }
+  var id = C.ga4Id;
   if(!id) return;
   var s=document.createElement('script'); s.async=true;
   s.src='https://www.googletagmanager.com/gtag/js?id='+id; document.head.appendChild(s);
